@@ -59,4 +59,4 @@ The full conversation with Copilot is available in [AI_conversation.md](script/A
 
 The Appium automation task is available in the automation folder.
 
-The implementation and explanation of what was tested, what was discovered, and the limitation encountered with the Minime window and WinAppDriver/Appium are described in the [README.md](automation/README.md) file inside the automation folder.
+The implementation and explanation of what was tested, what was discovered, and the limitation encountered with the Minime window and WinAppDriver/Appium are described in the [README.md](jm-test/automation/README.md) file inside the automation folder.
