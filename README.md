@@ -46,4 +46,4 @@ The Excel report contains two sheets: Data (raw results), Charts (visualizations
 - The `venv/` folder is excluded via `.gitignore` and should not be pushed to GitHub.  
 
 ## AI Conversation
-The full conversation with Copilot is available in [AI_conversation.md](AI_conversation.md).
+The full conversation with Copilot is available in [AI_conversation.md](script/AI_conversation.md).
