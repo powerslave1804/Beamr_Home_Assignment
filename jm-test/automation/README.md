@@ -7,13 +7,15 @@ This project contains a small Appium test using the Page Object Model (POM) patt
 The test is intended to verify the following flow:
 
 1. Start the JPEGmini Pro application.
-2. Close the Trial popup.
+2. Dismiss the Trial popup.
 3. Click the **Minime Mode** button.
-4. Verify that the application switched to the Minime window.
+4. Verify the transition to Minime Mode.
 5. Click the **Expand / Regular Mode** button.
-6. Verify that the application returned to the Regular window.
+6. Verify the return to Regular Mode.
 
-## Project structure
+Due to a limitation encountered with the Appium/WinAppDriver session, the complete flow could not be reliably verified.
+
+## Project Structure
 
 ```text
 automation/
@@ -29,60 +31,57 @@ automation/
 
 ## Page Objects
 
-The application is split into two page objects:
+The application interactions are organized into three page objects:
 
-* `RegularPage` - contains the locator and actions for the normal application window.
-* `MinimePage` - contains the locator and actions related to Minime Mode.
-* `BasePage` - contains common methods used by both pages.
+* `RegularPage` — contains the locator and actions for the Regular window.
+* `MinimePage` — contains the locator and actions related to Minime Mode.
+* `BasePage` — contains common methods shared by both page objects.
 
-The main locators found in Appium Inspector were:
+The main locators identified using Appium Inspector were:
 
-* `BtnMiniMode` - Minime Mode button in the Regular window.
-* `BtnNormalMode` - Expand / return to Regular Mode button in the Minime window.
+* `BtnMiniMode` — Minime Mode button in the Regular window.
+* `BtnNormalMode` — Expand / return to Regular Mode button in the Minime window.
 * Trial popup Continue button:
+
   `/Window/Custom[3]/Custom[2]/Button[3]/Text`
 
-## What was tested
+## What Was Tested
 
-The test successfully performs the first part of the flow:
+The test performs the following actions:
 
-* The Trial popup is found and clicked using its XPath.
-* `BtnMiniMode` is found in the Regular window.
-* `BtnMiniMode` is clicked and the application switches to Minime Mode.
-* After switching to Minime Mode, the test tries to find `BtnNormalMode`.
+* Locates and clicks the Trial popup Continue button using its XPath.
+* Locates `BtnMiniMode` in the Regular window.
+* Clicks `BtnMiniMode` to initiate the transition to Minime Mode.
+* Attempts to locate `BtnNormalMode` after the transition.
 
-The important part here is that `BtnNormalMode` could not be found through the Appium/WinAppDriver session after switching to Minime Mode.
-
-The test therefore checks this behavior explicitly:
+The test checks whether `BtnNormalMode` is available through the current Appium/WinAppDriver session. The element was not found, so the test contains the following assertion:
 
 ```python
 assert not normal_button_available
 ```
 
-This confirms that the locator which is visible in Appium Inspector for the Minime window is not available through the test session after the window changes.
+This assertion verifies that `BtnNormalMode` was not found in the current test session. It does not establish that the element is unavailable in every Appium session or under all circumstances.
 
-## Problem found
+## Problem Found
 
-The main problem was not finding the correct locator in Appium Inspector.
+The main difficulty was that the Minime window was not exposed in the same way through the pytest Appium session as it was in Appium Inspector.
 
-The locators were available there:
+After attempting to switch to Minime Mode, the `page_source` returned by the test session contained only the main WPF window and did not include `BtnNormalMode`. Attempts to locate the button using its AutomationId and an XPath locator were unsuccessful.
 
-* `BtnMiniMode` for the Regular window
-* `BtnNormalMode` for the Minime window
+Although Appium Inspector identified the following elements:
 
-However, the Appium session used by pytest did not expose the Minime window in the same way.
+* `BtnMiniMode` in the Regular window.
+* `BtnNormalMode` in the Minime window.
 
-After switching to Minime Mode, `page_source` contained only the main WPF window and did not contain `BtnNormalMode`. Attempts to find it using both its AutomationId and its XPath also failed.
+The pytest session did not reliably expose the Minime window and its controls through the UI tree.
 
-The Minime window itself was visible on the desktop, but it was not available as a normal element in the current Appium/WinAppDriver UI tree.
+I also examined the window handles and the window dimensions reported by Appium. These checks did not provide a reliable way to access the Minime window, and the reported window size remained the same as that of the main application window.
 
-I also checked the window handles and the window size returned by Appium. These did not provide a reliable way to access the Minime window. The reported window size stayed the same as the main application window.
+## Attempt to Return to Regular Mode
 
-## Returning to Regular Mode
+The Minime window's Expand button was identified in Appium Inspector at approximately `(20, 20)`.
 
-The Minime window has a small Expand button at approximately `(20, 20)`.
-
-Since Appium could not access that button as an element, I used the Windows click command as a fallback:
+Since the button could not be located as an element through the pytest Appium session, I attempted to click its coordinates using the Windows click command:
 
 ```python
 self.driver.execute_script(
@@ -91,17 +90,20 @@ self.driver.execute_script(
 )
 ```
 
-This successfully returns the application to the Regular window.
+This was a fallback attempt to activate the Expand button. However, the successful return to Regular Mode was not independently confirmed, so the result of this action remains unverified.
 
-However, after returning to Regular Mode, the WinAppDriver/Appium UI tree is still not refreshed reliably. Because of that, I did not add another element assertion after returning to Regular Mode that could give a false result.
+I did not add a final element assertion because the Appium/WinAppDriver UI tree did not reliably expose the expected elements after the window transition.
 
 ## Result
 
-The test currently verifies the part of the flow that can be reliably tested through the Appium session:
+The test covers the following checks and actions:
 
-* Trial popup can be handled.
-* Minime Mode button can be located and clicked.
-* After switching to Minime Mode, the expected `BtnNormalMode` element is not exposed to the Appium/WinAppDriver session.
-* The application can still be returned to Regular Mode using the Windows click fallback.
+* The Trial popup Continue button is located and clicked.
+* `BtnMiniMode` is located in the Regular window.
+* The Minime Mode transition is initiated by clicking `BtnMiniMode`.
+* `BtnNormalMode` is not found through the current Appium/WinAppDriver session after the attempted transition.
+* A coordinate-based click is attempted as a fallback to activate the Expand button.
 
-The remaining issue is the interaction between the Minime window and WinAppDriver. The Minime window is visible and interactive, but it is not exposed as a normal Appium UI tree in the pytest session, which prevents the final **click Expand + verify Regular Mode** step from being implemented reliably with Appium alone.
+The test does not fully verify both window transitions. In particular, the return to Regular Mode has not been independently confirmed.
+
+The main limitation encountered was the inconsistent availability of the Minime window and its controls through the Appium/WinAppDriver UI tree. As a result, the complete requested flow could not be reliably automated and verified with the current approach.
