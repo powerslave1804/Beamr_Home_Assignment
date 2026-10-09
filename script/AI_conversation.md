@@ -239,24 +239,4 @@ If you want to make the workflow even closer to the wording of the assignment, t
 
 The important part is that the report is based on the actual output of the script and does not require manually entering the measurements.
 
----
 
-### Me:
-
-The assignment also asks me to share the AI conversation. Is this type of transcript sufficient?
-
-### AI:
-
-Yes. The conversation demonstrates how AI was used as part of the development workflow.
-
-It shows the process of:
-
-* planning the reporting approach,
-* structuring the collected data,
-* creating the reporting logic,
-* troubleshooting the x264 QP limitation,
-* identifying the `--qpmin 0` configuration,
-* validating the successful QP 0 run,
-* and interpreting the resulting measurements.
-
-The final report should contain the actual results produced by the script.
