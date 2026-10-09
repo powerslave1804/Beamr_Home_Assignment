@@ -46,7 +46,7 @@ Results are saved in [qp_results.csv](script/qp_results.csv) and visualized in t
 
 ## Spreadsheet Report
 The complete report with charts and conclusions is available in [qp_report.xlsx](script/qp_report.xlsx).
-The Excel report contains two sheets: Data (raw results), Charts (visualizations), and Conclusion (summary).
+The Excel report contains: Data (raw results), Charts (visualizations), and Conclusion (summary).
 
 ## Notes
 - The `venv/` folder is excluded via `.gitignore` and should not be pushed to GitHub.  
